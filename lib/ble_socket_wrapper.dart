@@ -1,22 +1,21 @@
 import 'dart:async';
-// 1. Corrected the import path.
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
-// 2. Renamed variables to lowerCamelCase and declared them as 'const'.
+// 1. 'const'を'final'に変更しました。
 // These UUIDs must exactly match the firmware on the BLE peripheral device.
-const serviceUuid = Guid("0000ffe0-0000-1000-8000-00805f9b34fb");
-const txCharacteristicUuid = Guid("0000ffe1-0000-1000-8000-00805f9b34fb"); // For writing data (Transmit)
-const rxCharacteristicUuid = Guid("0000ffe2-0000-1000-8000-00805f9b34fb"); // For receiving data (Receive/Notify)
+final serviceUuid = Guid("0000ffe0-0000-1000-8000-00805f9b34fb");
+final txCharacteristicUuid = Guid("0000ffe1-0000-1000-8000-00805f9b34fb"); // For writing data (Transmit)
+final rxCharacteristicUuid = Guid("0000ffe2-0000-1000-8000-00805f9b34fb"); // For receiving data (Receive/Notify)
 
 class BleSocket {
   final BluetoothDevice _device;
   late final BluetoothCharacteristic _txCharacteristic;
-  late final BluetoothCharacteristic _rxCharacteristic;
+  // 2. Unused '_rxCharacteristic' field has been removed.
   late final StreamController<List<int>> _dataStreamController;
   late final StreamSubscription<List<int>> _notificationSubscription;
 
-  // Private constructor
-  BleSocket._(this._device, this._txCharacteristic, this._rxCharacteristic) {
+  // 3. Removed '_rxCharacteristic' from the constructor.
+  BleSocket._(this._device, this._txCharacteristic) {
     _dataStreamController = StreamController<List<int>>.broadcast();
   }
 
@@ -29,12 +28,12 @@ class BleSocket {
 
     try {
       List<BluetoothService> services = await device.discoverServices();
-      // 3. Updated to use the new variable names.
       final service = services.firstWhere((s) => s.uuid == serviceUuid);
       final tx = service.characteristics.firstWhere((c) => c.uuid == txCharacteristicUuid);
       final rx = service.characteristics.firstWhere((c) => c.uuid == rxCharacteristicUuid);
 
-      final socket = BleSocket._(device, tx, rx);
+      // 4. Updated the constructor call.
+      final socket = BleSocket._(device, tx);
       await rx.setNotifyValue(true);
       socket._notificationSubscription = rx.onValueReceived.listen(socket._onDataReceived);
       
