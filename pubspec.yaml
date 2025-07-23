@@ -1,6 +1,6 @@
 name: ble_socket_wrapper
 description: "A wrapper for flutter_blue_plus that provides a simple socket-like interface for BLE communication."
-version: 0.0.1
+version: 0.0.2
 homepage: https://github.com/ijeong1/flutter_blue_plus_socket_wrapper
 
 environment:
