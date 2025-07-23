@@ -4,8 +4,12 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 // 1. 'const'を'final'に変更しました。
 // These UUIDs must exactly match the firmware on the BLE peripheral device.
 final serviceUuid = Guid("0000ffe0-0000-1000-8000-00805f9b34fb");
-final txCharacteristicUuid = Guid("0000ffe1-0000-1000-8000-00805f9b34fb"); // For writing data (Transmit)
-final rxCharacteristicUuid = Guid("0000ffe2-0000-1000-8000-00805f9b34fb"); // For receiving data (Receive/Notify)
+final txCharacteristicUuid = Guid(
+  "0000ffe1-0000-1000-8000-00805f9b34fb",
+); // For writing data (Transmit)
+final rxCharacteristicUuid = Guid(
+  "0000ffe2-0000-1000-8000-00805f9b34fb",
+); // For receiving data (Receive/Notify)
 
 class BleSocket {
   final BluetoothDevice _device;
@@ -23,24 +27,32 @@ class BleSocket {
   /// Throws an exception if the required services/characteristics are not found.
   static Future<BleSocket> connect(String deviceId) async {
     final device = BluetoothDevice.fromId(deviceId);
-    
+
     await device.connect(mtu: 512);
 
     try {
       List<BluetoothService> services = await device.discoverServices();
       final service = services.firstWhere((s) => s.uuid == serviceUuid);
-      final tx = service.characteristics.firstWhere((c) => c.uuid == txCharacteristicUuid);
-      final rx = service.characteristics.firstWhere((c) => c.uuid == rxCharacteristicUuid);
+      final tx = service.characteristics.firstWhere(
+        (c) => c.uuid == txCharacteristicUuid,
+      );
+      final rx = service.characteristics.firstWhere(
+        (c) => c.uuid == rxCharacteristicUuid,
+      );
 
       // 4. Updated the constructor call.
       final socket = BleSocket._(device, tx);
       await rx.setNotifyValue(true);
-      socket._notificationSubscription = rx.onValueReceived.listen(socket._onDataReceived);
-      
+      socket._notificationSubscription = rx.onValueReceived.listen(
+        socket._onDataReceived,
+      );
+
       return socket;
     } catch (e) {
       await device.disconnect();
-      throw Exception('Failed to find required services/characteristics or setup failed: $e');
+      throw Exception(
+        'Failed to find required services/characteristics or setup failed: $e',
+      );
     }
   }
 

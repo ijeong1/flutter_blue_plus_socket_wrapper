@@ -14,9 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'BleSocket Example',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue),
       home: MyHomePage(),
     );
   }
@@ -30,10 +28,10 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   BleSocket? _socket;
   StreamSubscription? _dataSubscription;
-  
+
   // IMPORTANT: Replace this with the actual device ID of your peripheral.
-  final String myTestDeviceId = "XX:XX:XX:XX:XX:XX"; 
-  
+  final String myTestDeviceId = "XX:XX:XX:XX:XX:XX";
+
   List<String> receivedDataLogs = [];
   bool isConnecting = false;
   bool get isConnected => _socket != null;
@@ -46,7 +44,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _showSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void connect() async {
@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       // 1. Connect to the device to create a socket
       final socket = await BleSocket.connect(myTestDeviceId);
-      
+
       setState(() {
         _socket = socket;
         isConnecting = false;
@@ -69,17 +69,21 @@ class _MyHomePageState extends State<MyHomePage> {
       _showSnackbar("Connected!");
 
       // 2. Start listening for incoming data
-      _dataSubscription = socket.stream.listen((data) {
-        setState(() {
-          // Display received data as a hex string
-          final hexString = data.map((b) => '0x${b.toRadixString(16).padLeft(2, '0')}').join(' ');
-          receivedDataLogs.add("RX: $hexString");
-        });
-      }, onError: (error) {
-        _showSnackbar("Stream Error: $error");
-        disconnect();
-      });
-
+      _dataSubscription = socket.stream.listen(
+        (data) {
+          setState(() {
+            // Display received data as a hex string
+            final hexString = data
+                .map((b) => '0x${b.toRadixString(16).padLeft(2, '0')}')
+                .join(' ');
+            receivedDataLogs.add("RX: $hexString");
+          });
+        },
+        onError: (error) {
+          _showSnackbar("Stream Error: $error");
+          disconnect();
+        },
+      );
     } catch (e) {
       _showSnackbar("Connection Failed: $e");
       setState(() {
@@ -104,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void disconnect() {
     if (!isConnected) return;
-    
+
     // 4. Close the connection and clean up resources
     _dataSubscription?.cancel();
     _socket?.close();
@@ -118,9 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('BleSocket Wrapper Example'),
-      ),
+      appBar: AppBar(title: Text('BleSocket Wrapper Example')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -130,7 +132,9 @@ class _MyHomePageState extends State<MyHomePage> {
               children: [
                 ElevatedButton(
                   onPressed: isConnected || isConnecting ? null : connect,
-                  child: isConnecting ? CircularProgressIndicator(color: Colors.white) : Text("Connect"),
+                  child: isConnecting
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : Text("Connect"),
                 ),
                 ElevatedButton(
                   onPressed: isConnected ? sendData : null,
@@ -143,7 +147,10 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
             ),
             SizedBox(height: 20),
-            Text("Connection Log", style: Theme.of(context).textTheme.headlineSmall),
+            Text(
+              "Connection Log",
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
             Expanded(
               child: Container(
                 margin: const EdgeInsets.only(top: 8),
@@ -159,7 +166,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       receivedDataLogs[index],
                       style: TextStyle(
                         fontFamily: 'monospace',
-                        color: receivedDataLogs[index].contains("❌") ? Colors.red : Colors.black,
+                        color: receivedDataLogs[index].contains("❌")
+                            ? Colors.red
+                            : Colors.black,
                       ),
                     );
                   },
