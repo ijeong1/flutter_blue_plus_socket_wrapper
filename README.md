@@ -59,7 +59,7 @@ Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  ble_socket_wrapper: ^0.0.1 # Check for the latest version on pub.dev
+  ble_socket_wrapper: ^0.0.2 # Check for the latest version on pub.dev
 ```
 
 Then, run:
